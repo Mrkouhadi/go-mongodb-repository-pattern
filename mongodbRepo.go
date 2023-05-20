@@ -65,6 +65,40 @@ func (mr *MongodbRepo) addMultipleBooks(booksTobeInserted ...Book) {
 	fmt.Println(" --------------- Inserted multiple documents: ", insertManyResult.InsertedIDs)
 }
 
+// ////////////////////////////// update
+func (mr *MongodbRepo) UpdateBookTitle(id int, title string) {
+	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
+
+	filter := bson.D{{Key: "id", Value: id}}
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "name", Value: title},
+		}},
+	}
+	updateResult, err := booksCollection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(" ------------ Edit Title: Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
+}
+func (mr *MongodbRepo) increaseBookPrice(id int, inc int) {
+	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
+
+	filter := bson.D{{Key: "id", Value: id}}
+	update := bson.D{
+		{Key: "$inc", Value: bson.D{
+			{Key: "price", Value: inc},
+		}},
+	}
+	updateResult, err := booksCollection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(" ------------ Increase price: Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
+}
+
 // /////////////////////////////////////////  FIND documents  ///////////////////////////////////////////
 // find a single dcument
 func (mr *MongodbRepo) findeSingleBook(id int) {

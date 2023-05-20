@@ -1,6 +1,5 @@
 package main
 
-
 // main
 func main() {
 	Mongodb_Repo := CreateNewMongoDbRepo("mongodb://localhost:27017")
@@ -18,10 +17,17 @@ func main() {
 	Mongodb_Repo.findeSingleBook(2) // 2 is the id of the book
 
 	// find multiple books
-	Mongodb_Repo.findMultipleBooks(4) // 4 is the limit
+	Mongodb_Repo.findMultipleBooks(10) // 10 is the limit
 
 	// delete a single book
 	Mongodb_Repo.deleteSingleBook(1)
+
+	// update a book
+	Mongodb_Repo.UpdateBookTitle(3, "The best num 3 book")
+	Mongodb_Repo.increaseBookPrice(5, 9999)
+
+	// find multiple books
+	Mongodb_Repo.findMultipleBooks(10) // 10 is the limit
 
 	// close CONNECTION
 	Mongodb_Repo.disconnectDB()

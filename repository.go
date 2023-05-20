@@ -7,5 +7,7 @@ type Repository interface {
 	findMultipleBooks(limit int64)
 	deleteSingleBook(id int)
 	deleteAllBooks()
+	UpdateBookTitle(id int, title string)
+	increaseBookPrice(id, inc int)
 	disconnectDB()
 }
