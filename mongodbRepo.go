@@ -39,8 +39,8 @@ func connectToMongoDb(url string) *mongo.Client {
 	return client
 }
 
-// //////////////////////////////////////////// METHODS
-// *********** first method: insert one BOOK
+// //////////////////////////////////////////// INSERTION ///////////////////////////////////////////
+// *********** insert one BOOK
 func (mr *MongodbRepo) addBook(b Book) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 	insertResult, err := booksCollection.InsertOne(context.TODO(), b)
@@ -65,7 +65,7 @@ func (mr *MongodbRepo) addMultipleBooks(booksTobeInserted ...Book) {
 	fmt.Println(" --------------- Inserted multiple documents: ", insertManyResult.InsertedIDs)
 }
 
-// ////////////////////////////// update
+// ///////////////////////////////////////////////// UPDATE documents /////////////////////////////////////////
 func (mr *MongodbRepo) UpdateBookTitle(id int, title string) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
