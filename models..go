@@ -2,7 +2,7 @@ package main
 
 type Book struct {
 	ID     int
-	NAME   string
+	TITLE  string
 	AUTHOR string
 	PRICE  float64
 }
