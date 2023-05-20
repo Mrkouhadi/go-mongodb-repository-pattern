@@ -32,6 +32,3 @@ func main() {
 	// close CONNECTION
 	Mongodb_Repo.disconnectDB()
 }
-
-// MACOS:  brew services start mongodb-community
-// go get go.mongodb.org/mongo-driver/mongo
