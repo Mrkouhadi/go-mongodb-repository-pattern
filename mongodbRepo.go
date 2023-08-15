@@ -16,22 +16,22 @@ type MongodbRepo struct {
 }
 
 // ************ create new mongodb repository
-func CreateNewMongoDbRepo(url string) *MongodbRepo {
+func CreateNewMongoDbRepo(url string, ctx context.Context) *MongodbRepo {
 	return &MongodbRepo{
-		MongodbClient: connectToMongoDb(url),
+		MongodbClient: connectToMongoDb(url, ctx),
 	}
 }
 
 // ************ CONNECT to mongodb
-func connectToMongoDb(url string) *mongo.Client {
+func connectToMongoDb(url string, ctx context.Context) *mongo.Client {
 	clientOptions := options.Client().ApplyURI(url)
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(ctx, clientOptions)
 	fmt.Printf("%T", client)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// CHECK CONNECTION
-	err = client.Ping(context.TODO(), nil)
+	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,9 +41,9 @@ func connectToMongoDb(url string) *mongo.Client {
 
 // //////////////////////////////////////////// INSERTION ///////////////////////////////////////////
 // *********** insert one BOOK
-func (mr *MongodbRepo) addBook(b Book) {
+func (mr *MongodbRepo) addBook(ctx context.Context, b Book) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
-	insertResult, err := booksCollection.InsertOne(context.TODO(), b)
+	insertResult, err := booksCollection.InsertOne(ctx, b)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,14 +51,14 @@ func (mr *MongodbRepo) addBook(b Book) {
 }
 
 // *********** insert multiple books at a time
-func (mr *MongodbRepo) addMultipleBooks(booksTobeInserted ...Book) {
+func (mr *MongodbRepo) addMultipleBooks(ctx context.Context, booksTobeInserted ...Book) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
 	books := []interface{}{}
 	for _, book := range booksTobeInserted {
 		books = append(books, book)
 	}
-	insertManyResult, err := booksCollection.InsertMany(context.TODO(), books)
+	insertManyResult, err := booksCollection.InsertMany(ctx, books)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func (mr *MongodbRepo) addMultipleBooks(booksTobeInserted ...Book) {
 }
 
 // ///////////////////////////////////////////////// UPDATE documents /////////////////////////////////////////
-func (mr *MongodbRepo) UpdateBookTitle(id int, title string) {
+func (mr *MongodbRepo) UpdateBookTitle(ctx context.Context, id int, title string) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
 	filter := bson.D{{Key: "id", Value: id}}
@@ -75,14 +75,14 @@ func (mr *MongodbRepo) UpdateBookTitle(id int, title string) {
 			{Key: "name", Value: title},
 		}},
 	}
-	updateResult, err := booksCollection.UpdateOne(context.TODO(), filter, update)
+	updateResult, err := booksCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Printf(" ------------ Edit Title: Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
 }
-func (mr *MongodbRepo) increaseBookPrice(id int, inc int) {
+func (mr *MongodbRepo) increaseBookPrice(ctx context.Context, id int, inc int) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
 	filter := bson.D{{Key: "id", Value: id}}
@@ -91,7 +91,7 @@ func (mr *MongodbRepo) increaseBookPrice(id int, inc int) {
 			{Key: "price", Value: inc},
 		}},
 	}
-	updateResult, err := booksCollection.UpdateOne(context.TODO(), filter, update)
+	updateResult, err := booksCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -101,14 +101,14 @@ func (mr *MongodbRepo) increaseBookPrice(id int, inc int) {
 
 // /////////////////////////////////////////  FIND documents  ///////////////////////////////////////////
 // find a single dcument
-func (mr *MongodbRepo) findeSingleBook(id int) {
+func (mr *MongodbRepo) findeSingleBook(ctx context.Context, id int) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
 	filter := bson.D{{Key: "id", Value: id}}
 
 	var result Book
 
-	err := booksCollection.FindOne(context.TODO(), filter).Decode(&result)
+	err := booksCollection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -117,7 +117,7 @@ func (mr *MongodbRepo) findeSingleBook(id int) {
 }
 
 // find multiple documents
-func (mr *MongodbRepo) findMultipleBooks(limit int64) {
+func (mr *MongodbRepo) findMultipleBooks(ctx context.Context, limit int64) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
 	findOptions := options.Find()
@@ -125,13 +125,13 @@ func (mr *MongodbRepo) findMultipleBooks(limit int64) {
 
 	var results []*Book
 	// Finding multiple documents returns a cursor
-	cur, err := booksCollection.Find(context.TODO(), bson.D{{}}, findOptions)
+	cur, err := booksCollection.Find(ctx, bson.D{{}}, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Iterate through the cursor
-	for cur.Next(context.TODO()) {
+	for cur.Next(ctx) {
 		var elem Book
 		err := cur.Decode(&elem)
 		if err != nil {
@@ -146,7 +146,7 @@ func (mr *MongodbRepo) findMultipleBooks(limit int64) {
 	}
 
 	// Close the cursor once finished
-	cur.Close(context.TODO())
+	cur.Close(ctx)
 
 	fmt.Printf(" --------------- Found multiple documents (array of pointers): %+v\n", results) //array of pointer
 	fmt.Println("- - -Here's the second found book (value of pointer 2) : ", *results[2])       // get the value of the pointers
@@ -154,10 +154,10 @@ func (mr *MongodbRepo) findMultipleBooks(limit int64) {
 
 // ////////////////////////////////////////  DELETE DOCUMENTS  ///////////////////////////////////////////
 // delete only single document
-func (mr *MongodbRepo) deleteSingleBook(id int) {
+func (mr *MongodbRepo) deleteSingleBook(ctx context.Context, id int) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
 
-	deleteResult, err := booksCollection.DeleteMany(context.TODO(), bson.D{{Key: "id", Value: id}})
+	deleteResult, err := booksCollection.DeleteMany(ctx, bson.D{{Key: "id", Value: id}})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -165,9 +165,9 @@ func (mr *MongodbRepo) deleteSingleBook(id int) {
 }
 
 // / delete all documents
-func (mr *MongodbRepo) deleteAllBooks() {
+func (mr *MongodbRepo) deleteAllBooks(ctx context.Context) {
 	booksCollection := mr.MongodbClient.Database("library-db").Collection("books")
-	deleteResult, err := booksCollection.DeleteMany(context.TODO(), bson.D{{}})
+	deleteResult, err := booksCollection.DeleteMany(ctx, bson.D{{}})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -175,8 +175,8 @@ func (mr *MongodbRepo) deleteAllBooks() {
 }
 
 // /////////////////////////////////////////  DISCONNECTION  ///////////////////////////////////////////
-func (mr *MongodbRepo) disconnectDB() {
-	err := mr.MongodbClient.Disconnect(context.TODO())
+func (mr *MongodbRepo) disconnectDB(ctx context.Context) {
+	err := mr.MongodbClient.Disconnect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
