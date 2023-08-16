@@ -10,9 +10,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	Mongodb_Repo := CreateNewMongoDbRepo("mongodb://localhost:27017", ctx)
-
 	///**The functions below are supposed to be called in handlers functions**/////
 	// delete all documents already in collection
+
 	Mongodb_Repo.deleteAllBooks(ctx)
 
 	// addd a book

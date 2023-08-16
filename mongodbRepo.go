@@ -26,7 +26,6 @@ func CreateNewMongoDbRepo(url string, ctx context.Context) *MongodbRepo {
 func connectToMongoDb(url string, ctx context.Context) *mongo.Client {
 	clientOptions := options.Client().ApplyURI(url)
 	client, err := mongo.Connect(ctx, clientOptions)
-	fmt.Printf("%T", client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,7 +34,7 @@ func connectToMongoDb(url string, ctx context.Context) *mongo.Client {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(" --------------- Connected to MongoDB!")
+	fmt.Println(" --------------- App has been Connected to MongoDB!")
 	return client
 }
 
@@ -180,5 +179,5 @@ func (mr *MongodbRepo) disconnectDB(ctx context.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(" --------------- Connection to MongoDB closed.")
+	fmt.Println(" --------------- Connection to MongoDB has been closed.")
 }
