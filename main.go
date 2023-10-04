@@ -12,7 +12,6 @@ func main() {
 	Mongodb_Repo := CreateNewMongoDbRepo("mongodb://localhost:27017", ctx)
 	///**The functions below are supposed to be called in handlers functions**/////
 	// delete all documents already in collection
-
 	Mongodb_Repo.deleteAllBooks(ctx)
 
 	// addd a book
@@ -39,5 +38,4 @@ func main() {
 
 	// close CONNECTION
 	Mongodb_Repo.disconnectDB(ctx)
-
 }
