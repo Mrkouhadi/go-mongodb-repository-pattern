@@ -2,35 +2,21 @@ package main
 
 import (
 	"context"
-	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/mrkouhadi/go-graphql-mongo/internal"
 	"github.com/mrkouhadi/go-graphql-mongo/internal/db"
 	"github.com/mrkouhadi/go-graphql-mongo/internal/handlers"
-	"github.com/mrkouhadi/go-graphql-mongo/internal/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var app internal.Config
-var session *scs.SessionManager
 
 func main() {
-	// Register what's gonna be stored in the sessions
-	gob.Register(models.Book{})
-
-	// set up session
-	session = scs.New()
-	session.Lifetime = 24 * time.Hour
-	session.Cookie.Persist = true
-	session.Cookie.SameSite = http.SameSiteLaxMode
-	session.Cookie.Secure = app.InProduction
-	app.Session = session
 
 	// set up mongodb database
 	app.Mongo = ConnectToMongoDb("mongodb://localhost:27017")

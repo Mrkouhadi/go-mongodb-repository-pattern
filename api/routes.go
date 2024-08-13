@@ -14,17 +14,9 @@ func routes(app *internal.Config) http.Handler {
 
 	// middlewares
 	mux.Use(middleware.Recoverer)
-	mux.Use(LoadSession)
 
 	// GET routes
-	mux.Get("/book", handlers.Repo.Testt)
 	mux.Get("/", handlers.Repo.Testhandler)
-
-	// POST routes
-
-	// render STATIC FILES
-	fileServer := http.FileServer(http.Dir("./static/"))
-	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	// return our mux
 	return mux
